@@ -3,6 +3,12 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 import os
 
+DIR_LIST = ["1", "2", "3", "4"]
+
+HOME_TAB = "home_page"
+ABOUT_TAB = "about"
+
+TABS = {HOME_TAB : ("Home Page"), ABOUT_TAB : ("About")}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS 
@@ -20,17 +26,24 @@ app.config['UPLOAD_FOLDER'] = imageFolder
 
 ALLOWED_EXTENSIONS = {'jpg'}
 
+
+def render_general_page(active_tab, **kwargs) -> str:
+    title = TABS[active_tab]
+    return flask.render_template(f"{active_tab}.html", active_tab = active_tab, tabs = TABS.items(), title = title, **kwargs)
+
+
 @app.route("/")
-def render_home_page():
+def home_page():
     image_list = os.listdir('static/images')
     image_list = get_images()
-
-    return flask.render_template(f"album.html", images=image_list)
+    active_tab = HOME_TAB
+    return render_general_page(active_tab=active_tab, images=image_list)
 
 @app.route("/about")
-def render_about():
+def about():
     image="images/img.jpg"
-    return flask.render_template(f"about.html", portrait=image)
+    active_tab = ABOUT_TAB
+    return render_general_page(active_tab, portrait = image)
 
 @app.get("/<path:path>")
 def get_static(path):

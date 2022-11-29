@@ -1,15 +1,15 @@
 {% extends "layout.html" %}
+{% block title %} {{ title }} {% endblock %}
+
 {% block content %}
-<main class="about-style">
     <div class="cover-container d-flex w-100 p-3 mx-auto text-center">
       <main class="px-3">
-        <h1>Cover your page.</h1>
-        <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
+        <h1>Discover the wilderness.</h1>
+        <p class="lead">The wilderness is out there. The only thing you have to do is go explore it. Dare to dream, treat yourself with curiosity. This website is maintained by the ginger pioneer Andreas Öberg.</p>
         <p class="lead">
           <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
         </p>
-        <img src= "{{ url_for('static', filename=portrait)}}" class="img-fluid" alt="...">
+        <img src= "{{ url_for('static', filename=portrait)}}" class="img-fluid" alt="...", width="500" height="600">
       </main>
-    </div>
-</main>  
+    </div> 
 {% endblock %}
