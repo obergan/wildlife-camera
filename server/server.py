@@ -2,11 +2,16 @@ import flask
 from pathlib import Path
 from werkzeug.utils import secure_filename
 import os
+from server import models
+from . import *
+
 
 DIR_LIST = ["1", "2", "3", "4"]
 
 HOME_TAB = "home_page"
 ABOUT_TAB = "about"
+
+app = create_app()
 
 TABS = {HOME_TAB : ("Home Page"), ABOUT_TAB : ("About")}
 
@@ -18,11 +23,6 @@ def get_images():
     allowed_files = [file for file in file_names if allowed_file(file)]
     secure_files = [secure_filename(file) for file in allowed_files]
     return ['images/' + image for image in secure_files]
-
-app = flask.Flask(__name__)
-
-imageFolder = os.path.join('static', 'images')
-app.config['UPLOAD_FOLDER'] = imageFolder
 
 ALLOWED_EXTENSIONS = {'jpg'}
 
