@@ -25,13 +25,13 @@ def render_general_page(active_tab, **kwargs) -> str:
 
 @app.route("/")
 def home_page():
-    image_list = models.get_n_latest_images(5)
+    images = models.get_n_latest_images(5)
     active_tab = HOME_TAB
-    return render_general_page(active_tab=active_tab, images=image_list)
+    return render_general_page(active_tab=active_tab, images=images)
 
 @app.route("/about")
 def about():
-    image="images/img.jpg"
+    image="images/portrait/me.jpg"
     active_tab = ABOUT_TAB
     return render_general_page(active_tab, portrait = image)
 

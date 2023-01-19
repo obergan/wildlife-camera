@@ -1,47 +1,44 @@
-from typing import List, Tuple
-from sqlalchemy import desc
+
 from sqlalchemy.types import DateTime
-from . import db, IMAGE_FOLDER
-from werkzeug.utils import secure_filename
+
+
 import os
 from datetime import datetime
+from pathlib import Path
 
 ALLOWED_EXTENSIONS = {'jpg'}
+DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
 
-class Image(db.Model):
-    __tablename__ = 'images'
+def allowed_file(filename):    
+    split_str = filename.rsplit('.', 1)
+    if len(split_str) != 2:
+        return False
+    
+    datetime_str = split_str[0]
+    exstension = split_str[1]
+    
+    year_time = filename.rsplit('.', 1)[0].lower()
 
-    id = db.Column(db.Integer, primary_key=True)
-    file_name = db.Column(db.String)
-    time_stored = db.Column(DateTime)
+    correct_datetime_format = False
+    # using try-except to check for truth value
+    try:
+        correct_datetime_format = bool(datetime.strptime(year_time, DATETIME_FORMAT))
+    except ValueError:
+        correct_datetime_format = False
 
-def get_n_latest_images(n)->List[str]:
-    update_database()
-    latest_dates = (
-        db.session.query(Image.time_stored)
-        .order_by(Image.time_stored.desc())
-        .limit(n)
-        .all())
-    return [date.date_column for date in latest_dates]
+    correct_extension = exstension.lower() in ALLOWED_EXTENSIONS
+    is_filename = '.' in filename
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS 
+    return  correct_extension and is_filename and correct_datetime_format
 
-def get_images():
-    file_names = os.listdir('static/images')
-    allowed_files = [file for file in file_names if allowed_file(file)]
-    secure_files = [secure_filename(file) for file in allowed_files]
-    return ['images/' + image for image in secure_files]
+def remove_file_ending(file_name):
+    return Path(file_name).stem
 
-def update_database():
-    image_files = get_images()
-    for file in image_files:
-        # Check if the file is already in the database
-        image = db.session.query(Image).filter_by(time_stored=file).first()
-        if not image:
-            # File is not in the database, so add it
-            image = Image(file_name=file, datetime=datetime.now())
-            db.session.add(image)
-            db.session.commit()
+def filename_to_datetime(file_name):
+    datetime_str = remove_file_ending(file_name)
+    return datetime.strptime(datetime_str, DATETIME_FORMAT)
 
-update_database()
+test = [("bajs", "kiss"), ("lars", "bajja")]
+
+for key, value in test:
+    print(key, value)
