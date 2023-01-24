@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from sqlalchemy import desc
+from sqlalchemy import desc, extract, distinct
 from sqlalchemy.types import DateTime
 from . import db, IMAGE_FOLDER
 from werkzeug.utils import secure_filename
@@ -19,11 +19,14 @@ class Image(db.Model):
                             unique=True,
                             nullable=False)
 
+def get_image_info(images):
+    return [(image.file_name, image.time_stored.strftime("%Y-%m-%d %H:%M:%S")) for image in images]
+
+
 def get_n_latest_images(n)->List[str]:
     update_database()
     images = db.session.query(Image).order_by(Image.time_stored.desc()).limit(n)
-    images = [(image.file_name, image.time_stored.strftime("%Y-%m-%d %H:%M:%S")) for image in images]
-    return images 
+    return get_image_info(images) 
 
 def allowed_file(filename):    
     split_str = filename.rsplit('.', 1)
@@ -80,9 +83,29 @@ def update_database():
             db.session.commit()
     
     images_in_db = [image_in_db.file_name for image_in_db in db.session.query(Image).all()]
-    print(images_in_db)
+
     for db_im in images_in_db:
         if db_im not in image_files:
            db.session.query(Image).filter(Image.file_name == db_im).delete()
            db.session.commit()
-        
+
+def get_years():
+    years = db.session.query(extract('year', Image.time_stored)).distinct().all()
+    return [year[0] for year in years]
+
+def get_images_from_year(year):
+    image_dict = {}
+    months = db.session.query(extract('month', Image.time_stored)).filter(extract('year', Image.time_stored) == year).distinct().all()
+    months = [month[0] for month in months]
+    print("Tjen")
+    print(months)
+    for month in months:
+        images_in_month = db.session.query(Image).filter(extract('year', Image.time_stored) == year,
+                                                         extract('month', Image.time_stored) == month).all()
+        image_info = get_image_info(images_in_month)
+        print(image_info)
+        image_dict[str(month)] = image_info
+
+    return image_dict
+
+

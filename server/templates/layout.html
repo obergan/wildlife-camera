@@ -56,30 +56,15 @@
           </a>
         </h6>
         <ul class="nav flex-column mb-2">
+          {% for year in years %}
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="{{ 'nav-link active' if year == active_tab else 'nav-link' }}" href="/year/{{year}}">
               <span data-feather="file-text" class="align-text-bottom"></span>
-              Current month
+              {{year}}
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="file-text" class="align-text-bottom"></span>
-              Last quarter
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="file-text" class="align-text-bottom"></span>
-              Social engagement
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <span data-feather="file-text" class="align-text-bottom"></span>
-              Year-end sale
-            </a>
-          </li>
+          {% endfor %}
+
         </ul>
       </div>
     </nav>

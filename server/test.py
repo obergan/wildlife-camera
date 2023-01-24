@@ -42,3 +42,7 @@ test = [("bajs", "kiss"), ("lars", "bajja")]
 
 for key, value in test:
     print(key, value)
+
+a = ['23', '34', '5']
+for i in a:
+    print(i)
