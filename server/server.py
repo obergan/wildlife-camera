@@ -3,7 +3,7 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 import os
 from server import models
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 
 from . import *
@@ -40,7 +40,7 @@ def render_general_page(active_tab, **kwargs) -> str:
 
 @app.route("/")
 def home_page():
-    images = models.get_n_latest_images(5)
+    images = models.get_n_latest_images(10)
     active_tab = HOME_TAB
     return render_general_page(active_tab=active_tab, images=images)
 
@@ -53,12 +53,29 @@ def about():
 @app.route("/year/<int:year>")
 def year_page(year):
     images = models.get_images_from_year(year)
-    print("============")
-    print(images)
+
     active_tab = str(year)
     return render_general_page(active_tab, images = images)
 
 @app.get("/<path:path>")
 def get_static(path):
     return flask.send_from_directory("static", path)
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    # Retrieve the JPG file and the text string from the request
+    client_pw = request.form['password']
+    system_pw = os.environ.get('FLASK_PASS')
+    if (client_pw == system_pw):
+        file = request.files['image']
+        if file:
+            filename = file.filename
+            pt = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(pt)
+            return "File uploaded!"
+        else:
+            return "No file found"
+    
+    return "Invalid password, breach detected"
+
     

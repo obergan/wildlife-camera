@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
-IMAGE_FOLDER = os.path.join('server/static', 'images')
+IMAGE_FOLDER = os.path.join(f'static', 'images')
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
 
