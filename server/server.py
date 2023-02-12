@@ -52,6 +52,7 @@ def about():
 
 @app.route("/year/<int:year>")
 def year_page(year):
+    models.update_database()
     images = models.get_images_from_year(year)
 
     active_tab = str(year)
