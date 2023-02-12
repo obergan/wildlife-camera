@@ -1,0 +1,29 @@
+{% extends "layout.html" %}  
+{% block title %} {{title}} {% endblock %}
+
+
+{% block content %}
+
+
+<div class="album bg-light">
+  {% for month, image_info in images.items() %}
+    <p class="lead text-white bg-dark" style="text-indent: 1.1em;"> {{month}}</p>
+    <div class="container">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" style="margin-bottom: 20px;">
+        {% for image, date in image_info %}
+        <div class="col">
+          <div class="card shadow-sm">
+            <img src= "{{ url_for('static', filename=image)}}" class="img-fluid" alt="...">
+
+            <div class="card-body">
+              <p class="card-text">Date: {{date}}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %} 
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}
