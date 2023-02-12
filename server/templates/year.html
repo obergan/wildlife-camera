@@ -3,25 +3,27 @@
 
 
 {% block content %}
-{% for month, image_info in images.items() %}
-<p class="lead"> {{month}} </p>
-<div class="album py-5 bg-light">
+
+
+<div class="album bg-light">
+  {% for month, image_info in images.items() %}
+    <p class="lead text-white bg-dark" style="text-indent: 1.1em;"> {{month}}</p>
     <div class="container">
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" style="margin-bottom: 20px;">
         {% for image, date in image_info %}
         <div class="col">
           <div class="card shadow-sm">
             <img src= "{{ url_for('static', filename=image)}}" class="img-fluid" alt="...">
 
             <div class="card-body">
-              <p class="card-text">This image was taken: {{date}}</p>
+              <p class="card-text">Date: {{date}}</p>
             </div>
           </div>
         </div>
         {% endfor %} 
       </div>
     </div>
-    {% endfor %}
+  {% endfor %}
   </div>
 </div>
 {% endblock %}
