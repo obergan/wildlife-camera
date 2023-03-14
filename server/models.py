@@ -1,14 +1,17 @@
 from typing import List, Tuple, Dict
 from sqlalchemy import desc, extract, distinct
 from sqlalchemy.types import DateTime
-from . import db, IMAGE_FOLDER
+
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime
 from pathlib import Path
+from flask_sqlalchemy import SQLAlchemy
 
 ALLOWED_EXTENSIONS = {'jpg'}
 DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
+
+db = SQLAlchemy()
 
 class Image(db.Model):
     __tablename__ = 'images'
