@@ -1,3 +1,4 @@
+
 from pathlib import Path
 from werkzeug.utils import secure_filename
 import os
@@ -9,7 +10,7 @@ IMAGE_FOLDER = os.path.join(f'static', 'images')
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'image_database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'image_database.
 #app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
@@ -32,16 +33,16 @@ def render_general_page(active_tab, **kwargs) -> str:
     else:
         title = "Archive from year: " + active_tab
         page_to_render = f"year.html"
-    
+
     years = [str(year) for year in get_years()]
     years.reverse()
     print(years)
 
-    return render_template(page_to_render, 
-                                active_tab = active_tab, 
-                                tabs = TABS.items(), 
+    return render_template(page_to_render,
+                                active_tab = active_tab,
+                                tabs = TABS.items(),
                                 title = title,
-                                years = years, 
+                                years = years,
                                 **kwargs)
 
 
@@ -84,10 +85,11 @@ def upload():
             return "File uploaded!"
         else:
             return "No file found"
-    
+
     return "Invalid password, breach detected"
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
+
 
     
