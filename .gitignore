@@ -2,3 +2,4 @@ __pycache__/
 *.sh
 *.jpg
 *.db
+server/wildlife-camera-env/
