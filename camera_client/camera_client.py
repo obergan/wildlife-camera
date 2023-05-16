@@ -3,7 +3,7 @@ import time
 import requests
 import subprocess
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 GPIO.cleanup() 
 GPIO.setwarnings(False)
@@ -16,37 +16,43 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PIR, GPIO.IN)         #Read output from PIR motion sensor
 GPIO.setup(LED, GPIO.OUT)
 GPIO.output(LED, 0)         #LED output pin
+UPLOAD_URL = "http://wildlifecamera.ddns.net/upload"
+UPLOAD_PASSWORD = 'mango' # change to system variable
+IMAGE_DIR = 'images'
+IMAGE_INTERVAL_SECONDS = 30
 
 def read_motion_sensor():
     return GPIO.input(PIR) == 1
 
 def grad_and_upload_image():
-    
     filename = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.jpg')
-    filepath = os.path.join('images', filename)
+    filepath = os.path.join(IMAGE_DIR, filename)
     grab_image(filepath, filename)
-    
-    url = "http://wildlifecamera.ddns.net/upload"
-    try:
-        payload={'password': 'mango'}
-        files=[('image',(filename,open(filepath,'rb'),'images/jpeg'))]
-        headers = {}
-        response = requests.request("POST", url, headers=headers, data=payload, files=files)
-        
-        print(response.text)
-    except:
-        print("Unable to post image")
+    upload_image(filepath, filename)
     
 def grab_image(filepath, filename):
     command = ["raspistill", "-w", '640', '-h', '480', "-o", filepath]
     subprocess.run(command)
     print("Image aquired!")
+    
+def upload_image(filepath, filename):
+    try:
+        payload={'password': UPLOAD_PASSWORD}
+        files=[('image',(filename,open(filepath,'rb'),'images/jpeg'))]
+        headers = {}
+        response = requests.request("POST", UPLOAD_URL, headers=headers, data=payload, files=files)
+        
+        print(response.text)
+    except:
+        print("Unable to post image")
+    
 
 # Initialize variables
 previous_state = False
 current_state = False
 run_loop = True
 count = 0
+last_image_time = datetime.now()
 
 # Create a directory named "images" if it does not already exist
 if not os.path.exists('images'):
@@ -54,23 +60,25 @@ if not os.path.exists('images'):
 
 try:
     while run_loop:
-        current_state = read_motion_sensor()
+        motion_detected = read_motion_sensor()
+        time_elapsed = datetime.now() - last_image_time
         
-        if current_state == True:
-            print("Motion detected")
-            GPIO.output(3, 1)  #Turn ON LED
-            time.sleep(0.1)
-            grad_and_upload_image()
-            count = count + 1
-            if count >=2:
-                run_loop = False        
-            
-        if current_state == False:
-            print("No motion")
+        if motion_detected != previous_state:
+            if motion_detected:
+                print("Motion Detected")
+            else:
+                print("No Motion")
+            previous_state = motion_detected
+        
+            if motion_detected and (time_elapsed >= timedelta(seconds = IMAGE_INTERVAL_SECONDS)):
+                print("Image aquired after: ", time_elapsed, " seconds")
+                GPIO.output(3, 1)  #Turn ON LED
+                time.sleep(0.1)
+                grad_and_upload_image()
+                last_image_time = datetime.now()
+        else:
             GPIO.output(3, 0)
             time.sleep(0.1)             
-        
-        previous_state = read_motion_sensor()
 
 except KeyboardInterrupt:
     GPIO.cleanup()    
