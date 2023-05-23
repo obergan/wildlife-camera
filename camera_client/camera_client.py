@@ -10,12 +10,12 @@ GPIO.setwarnings(False)
 
 
 PIR = 11
-LED = 3
+MOSFET_PIN = 13
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PIR, GPIO.IN)         #Read output from PIR motion sensor
-GPIO.setup(LED, GPIO.OUT)
-GPIO.output(LED, 0)         #LED output pin
+GPIO.setup(MOSFET_PIN, GPIO.OUT)
+
 UPLOAD_URL = "http://wildlifecamera.ddns.net/upload"
 UPLOAD_PASSWORD = 'mango' # change to system variable
 IMAGE_DIR = 'images'
@@ -45,7 +45,10 @@ def upload_image(filepath, filename):
         print(response.text)
     except:
         print("Unable to post image")
-    
+
+
+def control_led(state):
+    GPIO.output(MOSFET_PIN, state)
 
 # Initialize variables
 previous_state = False
@@ -71,13 +74,17 @@ try:
             previous_state = motion_detected
         
             if motion_detected and (time_elapsed >= timedelta(seconds = IMAGE_INTERVAL_SECONDS)):
-                print("Image aquired after: ", time_elapsed, " seconds")
-                GPIO.output(3, 1)  #Turn ON LED
-                time.sleep(0.1)
+                
+                control_led(GPIO.HIGH)
+                print("LED ON")
+                time.sleep(5)
                 grad_and_upload_image()
+                print("Image aquired after: ", time_elapsed, " seconds")
+                print("LED OFF")
+                control_led(GPIO.LOW)
                 last_image_time = datetime.now()
         else:
-            GPIO.output(3, 0)
+
             time.sleep(0.1)             
 
 except KeyboardInterrupt:
