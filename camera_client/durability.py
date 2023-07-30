@@ -20,7 +20,7 @@ GPIO.setup(MOSFET_PIN, GPIO.OUT)
 UPLOAD_URL = "http://wildlifecamera.ddns.net/upload"
 UPLOAD_PASSWORD = 'mango' # change to system variable
 IMAGE_DIR = 'images'
-IMAGE_INTERVAL_SECONDS = 30
+IMAGE_INTERVAL_SECONDS = 60
 
 
 def read_motion_sensor():
@@ -73,31 +73,22 @@ try:
     while run_loop:
         motion_detected = read_motion_sensor()
         time_elapsed = datetime.now() - last_image_time
-        
-        if motion_detected != previous_state:
-            if motion_detected:
-                print("Motion Detected")
-            else:
-                print("No Motion")
-            previous_state = motion_detected
-        
-            if (time_elapsed >= timedelta(seconds = IMAGE_INTERVAL_SECONDS)) and motion_detected:
                 
-                control_led(GPIO.HIGH)
-                print("LED ON")
-                time.sleep(5)
-                grad_and_upload_image()
-                print("Image aquired after: ", time_elapsed, " seconds")
-                print("LED OFF")
-                control_led(GPIO.LOW)
-                last_image_time = datetime.now()
-                duration = last_image_time - start_time
-                minutes = duration.total_seconds()//60
-                count = count + 1
-                log_message = f"Program have been live for {minutes} minutes. Images taken = {count}"
-                logging.info(log_message)
-        else:
-
+        if (time_elapsed >= timedelta(seconds = IMAGE_INTERVAL_SECONDS)): #and motion_detected:
+            
+            control_led(GPIO.HIGH)
+            print("LED ON")
+            time.sleep(5)
+            grad_and_upload_image()
+            print("Image aquired after: ", time_elapsed, " seconds")
+            print("LED OFF")
+            control_led(GPIO.LOW)
+            last_image_time = datetime.now()
+            duration = last_image_time - start_time
+            minutes = duration.total_seconds()//60
+            count = count + 1
+            log_message = f"Program have been live for {minutes} minutes. Images taken = {count}"
+            logging.info(log_message)
             time.sleep(0.1)             
 
 except KeyboardInterrupt:
