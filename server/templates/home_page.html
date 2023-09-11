@@ -3,8 +3,35 @@
 
 
 {% block content %}
+
 <h2>Discover the wilderness.</h2>
-<p class="lead">Latest images taken. Enjoy! </p>
+<p class="lead">Camera Status: <span class="{{ 'red-text' if camera_inactive else 'green-text' }}">{{ status_str }}</span> </p>
+<p class="lead">
+  Time {{status_str}}:
+  <span id="time_stamp"></span>
+</p>
+<script>
+        // Get the timestamp passed from Flask
+        var timestampString = "{{ time_stamp }}";
+
+        // Convert the timestamp string to a JavaScript Date object
+        var timestampDate = new Date(timestampString);
+
+        // Function to update the displayed timestamp every second
+        function updateTimestamp() {
+            var currentTimestamp = new Date();
+            var timeDifference = currentTimestamp - timestampDate;
+            var formattedTimeDifference = new Date(timeDifference).toISOString().substr(11, 8);
+            document.getElementById("time_stamp").innerText = formattedTimeDifference;
+        }
+
+        // Update the timestamp immediately and then every second
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+</script>
+
+
+<p class="lead">Latest {{num_img}} images taken</p>
 
 <div class="album py-5 bg-light">
     <div class="container">

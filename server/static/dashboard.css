@@ -144,3 +144,16 @@ body {
 .col {
   margin-bottom: var(--bs-gutter-y);
 }
+
+.timestamp-label {
+  display: inline-block;
+  width: 100px; /* Adjust the width as needed */
+}
+
+.green-text {
+  color: green;
+}
+
+.red-text {
+  color: red;
+}
