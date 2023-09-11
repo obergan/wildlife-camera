@@ -101,16 +101,15 @@ def get_images_from_year(year)->Dict[str, Tuple[str, str]]:
     # Ectract every image-filled month
     months = db.session.query(extract('month', Image.time_stored)).filter(extract('year', Image.time_stored) == year).distinct().all()
     months = [month[0] for month in months]
+    months.reverse
 
     # Example February : [(path1, date1), (path2, date2)]
     for month in months:
         images_in_month = db.session.query(Image).filter(extract('year', Image.time_stored) == year,
                                                          extract('month', Image.time_stored) == month).all()
-        image_info = get_image_info(images_in_month)
-        print(image_info)
+        image_info = get_image_info(images_in_month)[::-1]
         image_dict[month_from_number(month)] = image_info
-
-    return image_dict
+    return {k: v for k, v in reversed(image_dict.items())}
 
 def month_from_number(month_number):
     month_names = ["January", "February", "March", "April", "May", "June",
