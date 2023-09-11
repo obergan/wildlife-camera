@@ -25,7 +25,7 @@ def my_scheduled_task():
     HEART.update_status()
     pass
 
-scheduler.add_job(my_scheduled_task, 'interval', minutes=1)  # Run every 30 minutes
+scheduler.add_job(my_scheduled_task, 'interval', seconds=20)  # Run every 30 minutes
 
 HOME_TAB = "home_page"
 ABOUT_TAB = "about"

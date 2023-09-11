@@ -1,6 +1,6 @@
 import datetime
 
-ACTIVITY_THRESHOLD = datetime.timedelta(seconds=15)
+ACTIVITY_THRESHOLD = datetime.timedelta(seconds=20)
 
 class Heart:
     def __init__(self):
