@@ -157,3 +157,12 @@ body {
 .red-text {
   color: red;
 }
+
+.status-box {
+  background-color: rgba(255, 255, 255, .25); /* Set the background color to gray */
+  border-radius: 10px; /* Add rounded corners with a 10px radius */
+  border: 2px solid black;
+  padding: 20px; /* Add padding to create spacing between content and the box */
+  width: fit-content; /* Make the box width fit its content */
+  margin: 0px; /* Add margin for spacing */
+}

@@ -5,11 +5,13 @@
 {% block content %}
 
 <h2>Discover the wilderness.</h2>
-<p class="lead">Camera Status: <span class="{{ 'red-text' if camera_inactive else 'green-text' }}">{{ status_str }}</span> </p>
-<p class="lead">
-  Time {{status_str}}:
-  <span id="time_stamp"></span>
-</p>
+<div class="status-box">
+  <p class="lead">Camera Status: <span class="{{ 'red-text' if camera_inactive else 'green-text' }}">{{ status_str }}</span> </p>
+  <p class="lead">
+    Time {{status_str}}:
+    <span id="time_stamp"></span>
+  </p>
+</div>
 <script>
         // Get the timestamp passed from Flask
         var timestampString = "{{ time_stamp }}";
