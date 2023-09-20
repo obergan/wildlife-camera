@@ -18,9 +18,11 @@ GPIO.setup(PIR, GPIO.IN)         #Read output from PIR motion sensor
 GPIO.setup(MOSFET_PIN, GPIO.OUT)
 
 UPLOAD_URL = "http://wildlifecamera.ddns.net/upload"
+HEARTBEAT_URL = "http://wildlifecamera.ddns.net/heartbeat"
 UPLOAD_PASSWORD = 'mango' # change to system variable
 IMAGE_DIR = 'images'
 IMAGE_INTERVAL_SECONDS = 30
+HEARTBEAT_INTERVAL_SECONDS = datetime.timedelta(minutes=1)
 
 
 def read_motion_sensor():
@@ -48,6 +50,15 @@ def upload_image(filepath, filename):
     except:
         print("Unable to post image")
 
+def send_heartbeat():
+    try:
+        payload={'heartbeat': 'beat'}
+        headers = {}
+        response = requests.request("POST", HEARTBEAT_URL, headers=headers, data=payload)
+        print(response.text)
+        return(response.text)
+    except:
+        return "Unable to upload heartbeat"
 
 def control_led(state):
     GPIO.output(MOSFET_PIN, state)
@@ -59,6 +70,7 @@ run_loop = True
 count = 0
 last_image_time = datetime.now()
 start_time = datetime.now()
+last_hb_time = datetime.now()
 
 # Create a directory named "images" if it does not already exist
 if not os.path.exists('images'):
@@ -98,7 +110,13 @@ try:
                 logging.info(log_message)
         else:
 
-            time.sleep(0.1)             
+            time.sleep(0.1)
+        
+        time_elapsed_hb = datetime.now()-last_hb_time
+
+        if time_elapsed_hb > HEARTBEAT_INTERVAL_SECONDS:
+            logging.info(send_heartbeat())
+            last_hb_time = datetime.now()
 
 except KeyboardInterrupt:
     GPIO.cleanup()    
