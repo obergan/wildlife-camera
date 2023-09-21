@@ -3,7 +3,8 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 import os
 from models import *
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, redirect, url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from heart import *
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -16,21 +17,33 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'image_database')
 app.config['UPLOAD_FOLDER'] = 'static/images'
-scheduler = BackgroundScheduler()
-db.init_app(app)
-with app.app_context():
-    db.create_all()
+app.secret_key = "key"
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 def my_scheduled_task():
     HEART.update_status()
     pass
-
+scheduler = BackgroundScheduler()
 scheduler.add_job(my_scheduled_task, 'interval', seconds=30)
+
+db.init_app(app)
+with app.app_context():
+    db.create_all()
+    add_user("admin", "pass")
+
+    
 
 HOME_TAB = "home_page"
 ABOUT_TAB = "about"
+ADMIN_TAB = "admin"
 
-TABS = {HOME_TAB : ("Home Page"), ABOUT_TAB : ("About")}
+TABS = {HOME_TAB : ("Home Page"), ABOUT_TAB : ("About"), ADMIN_TAB : ("Admin") }
 
 def render_general_page(active_tab, **kwargs) -> str:
     if active_tab in TABS:
@@ -115,6 +128,23 @@ def upload():
             return "No file found"
 
     return "Invalid password, breach detected"
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Replace this with your authentication logic (e.g., database lookup)
+        user = get_user(request.form['username'], request.form['password'])
+        if user:
+            login_user(user)
+            return redirect(url_for('admin'))
+
+    return render_template("login.html")
+
+@app.route('/admin')
+@login_required
+def admin():
+    return render_template('admin.html')
+
 
 if __name__ == "__main__":
     scheduler.start()

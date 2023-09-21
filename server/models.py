@@ -1,7 +1,7 @@
 from typing import List, Tuple, Dict
 from sqlalchemy import desc, extract, distinct
 from sqlalchemy.types import DateTime
-
+from flask_login import UserMixin 
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime
@@ -21,6 +21,26 @@ class Image(db.Model):
     time_stored = db.Column(db.DateTime(), 
                             unique=True,
                             nullable=False)
+
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    def __init__(self, user_id=None):
+        if user_id is not None:
+            self.id = user_id
+            
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+        # Implement the required UserMixin methods
+    def get_id(self):
+        return str(self.id)
+
+    @staticmethod
+    def get(user_id):
+        # Implement a method to retrieve a user by ID from your database
+        # Return the User object if found, or None if not found
+        return User.query.get(user_id)
 
 # image info = (path, date-time string)
 def get_image_info(images)->List[Tuple[str, str]]:     
@@ -118,6 +138,22 @@ def month_from_number(month_number):
         return month_names[month_number-1]
     else:
         return "Invalid month number"
+
+def add_user(username, password):
+    user = User.query.filter_by(username=username).first()
+    if(user is None):
+        user = User(username=username,password=password)
+        db.session.add(user)
+        db.session.commit()
+
+def get_user(username, password):
+    user = User.query.filter_by(username=username).first()
+    if (user and user.password == password):
+        return user
+    else:
+        return None
+
+
 
 
 
