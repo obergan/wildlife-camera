@@ -2,53 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .admin-container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-right: 20px; /* Add equal padding to the right side */
-            width: 320px; /* Increased width for the additional padding */
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        p {
-            color: #666;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="admin-container">
-        <h1>Welcome to the Admin Page</h1>
-        <p>This is a beautiful admin page.</p>
-        <p>You can customize this page as per your requirements.</p>
-        <p><a href="{{url_for('home_page')}}">Back to Home</a></p>
+    <div class="container mt-5">
+        <h1 class="mb-4">Admin Page</h1>
+
+        <!-- Return to Home Page Button -->
+        <form method="POST">
+            <button type="submit" name="home" class="btn btn-primary mb-4">Return to Home Page</button>
+        </form>
+
+        <!-- List of Images -->
+        <ul class="list-group">
+            {% for image_file in image_files %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <img src="{{ url_for('static', filename='images/' + image_file) }}" alt="{{ image_file }}" height="50" class="mr-3">
+                    {{ image_file }}
+                </div>
+                <div class="row align-items-center">
+                    <div class="col">
+                        <form method="POST">
+                            <button type="submit" name="save" value="{{ image_file }}" class="btn btn-success">Save</button>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <!-- Modal Trigger Button -->
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteModal{{ loop.index }}" data-backdrop="static" data-keyboard="false">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Bulk Save Button -->
+        <form method="POST" class="mt-4">
+            <button type="submit" name="bulksave" class="btn btn-primary">Bulk Save All Images</button>
+        </form>
     </div>
+
+    <!-- Include Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    {% for image_file in image_files %}
+    <!-- Modal for Confirm Delete -->
+    <div class="modal fade" id="confirmDeleteModal{{ loop.index }}" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel{{ loop.index }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel{{ loop.index }}">Confirm Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete "{{ image_file }}"?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST">
+                        <button type="submit" name="confirm_delete" value="{{ image_file }}" class="btn btn-danger">OK</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </body>
 </html>

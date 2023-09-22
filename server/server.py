@@ -3,13 +3,14 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 import os
 from models import *
-from flask import Flask, request, render_template, send_from_directory, redirect, url_for
+from flask import Flask, request, render_template, send_from_directory, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from heart import *
 from apscheduler.schedulers.background import BackgroundScheduler
+import zipfile
 
-IMAGE_FOLDER = os.path.join(f'static', 'images')
+a = os.path.join(f'static', 'images')
 HEART = Heart()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -140,10 +141,59 @@ def login():
 
     return render_template("login.html")
 
-@app.route('/admin')
+image_dir = 'static/images/'
+
+@app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
-    return render_template('admin.html')
+    image_files = []
+    image_to_delete = None  # Add this line to ensure the variable is defined
+    if request.method == 'POST':
+        if 'delete' in request.form:
+            # Show the confirmation modal when deleting a file
+            if 'delete' in request.form:
+            # Show the confirmation modal when deleting a file
+                image_to_delete = request.form['delete']
+                return render_template('admin.html', image_files=image_files, delete_modal=True, image_to_delete=image_to_delete)
+        elif 'confirm_delete' in request.form:
+            image_to_delete = request.form['confirm_delete']
+            delete_image(image_to_delete)
+            flash('Image deleted successfully!', 'success')
+        elif 'cancel_delete' in request.form:
+            flash('Deletion canceled!', 'info')
+        elif 'save' in request.form:
+            # Handle image download
+            image_to_save = request.form['save']
+            return download_image(image_to_save)
+        elif 'bulksave' in request.form:
+            # Handle bulk image download
+            return bulk_download_images()
+        elif 'home' in request.form:
+            # Redirect back to the home page
+            return redirect('/')
+
+    # Get a list of image files with the ".jpg" extension in the static/images directory
+    image_files = [f for f in os.listdir(image_dir) if f.endswith('.jpg')]
+
+    return render_template('admin.html', image_files=image_files, delete_modal=False)
+
+def delete_image(image_filename):
+    # Delete the selected image
+    os.remove(os.path.join(image_dir, image_filename))
+
+def download_image(image_filename):
+    # Send the selected image for download
+    return send_from_directory(image_dir, image_filename, as_attachment=True)
+
+def bulk_download_images():
+    # Create a zip file with all images and send it for download
+    zip_filename = 'images.zip'
+    with zipfile.ZipFile(zip_filename, 'w') as zipf:
+        for image_filename in os.listdir(image_dir):
+            image_path = os.path.join(image_dir, image_filename)
+            zipf.write(image_path, image_filename)
+
+    return send_from_directory('.', zip_filename, as_attachment=True)
 
 
 if __name__ == "__main__":
